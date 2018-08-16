@@ -28,8 +28,7 @@ module sma (/*AUTOARG*/
    logic [DATA_INPUT_WIDTH+BITS_ADDED_BY_FILTER_SUM-1:0] sample_sum_nxt;
    logic [DATA_INPUT_WIDTH+BITS_ADDED_BY_FILTER_SUM-1:0] sample_sum_reg;
    logic [DATA_INPUT_WIDTH-1:0] 			 sample_rd_data_from_memory;
-   logic [NUM_SAMPLES_TO_FILTER-1:0] 			 sample_memory[DATA_INPUT_WIDTH-1:0];
-   logic [SAMPLE_BUFFER_DEPTH_WIDTH-1:0] 		 sample_memory_wr_addr;
+   logic [DATA_INPUT_WIDTH-1:0] 			 sample_memory[NUM_SAMPLES_TO_FILTER-1:0];
    logic [DATA_INPUT_WIDTH-1:0] 			 decrement_sample_from_ram;
    
    // count upto samples

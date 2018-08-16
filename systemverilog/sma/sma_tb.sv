@@ -31,34 +31,42 @@ module sma_tb ();
    end
 
    // dut instance
-   u_sma #(
-	   .DATA_INPUT_WIDTH(16),
-	   .NUM_SAMPLES_TO_FILTER(4)
+   sma #(
+	 .DATA_INPUT_WIDTH(DATA_INPUT_WIDTH),
+	 .NUM_SAMPLES_TO_FILTER(NUM_SAMPLES_TO_FILTER)
 	   ) 
-   sma (.*);
+   u_sma (.*);
 
    // test case
    initial begin
+      in_data_valid <= 'b0;
+      in_data <= 'b0;
 
+      // wait until reset de-assert
       @(negedge rstn);
       @(posedge rstn);
 
       // wait for some 10 clocks after reset is de-asserted
       repeat (10) begin
-	 @(posedge clk)
+	 @(posedge clk);
       end
 
       // run the test case
-      
       for (int i = 0; i<256; i++) begin
 	 @(posedge clk);
 	 in_data_valid <= 1'b1;
 	 in_data = DATA_INPUT_WIDTH'(i);
       end
 
+      // de-assert valid 
       @(posedge clk);
       in_data_valid <= 1'b0;
-      
+
+      repeat (10) begin
+	 @(posedge clk);
+      end
+
+      $finish;
    end
    
 endmodule 	       
