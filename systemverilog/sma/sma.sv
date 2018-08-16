@@ -1,4 +1,9 @@
-module sma (/*AUTOARG*/ ) ;
+module sma (/*AUTOARG*/
+   // Outputs
+   out_data, out_data_valid,
+   // Inputs
+   clk, rstn, in_data, in_data_valid
+   );
 
    parameter DATA_INPUT_WIDTH = 16;
    parameter NUM_SAMPLES_TO_FILTER = 4;
@@ -18,10 +23,13 @@ module sma (/*AUTOARG*/ ) ;
    
    // internal signal declaration
    logic [SAMPLE_BUFFER_DEPTH_WIDTH-1:0] sample_counter;
-   logic [DATA_INPUT_WIDTH+BITS_ADDED_BY_FILTER_SUM-1:0] sample_sum;
+   logic 				 max_sample_count_reached;
+   
+   logic [DATA_INPUT_WIDTH+BITS_ADDED_BY_FILTER_SUM-1:0] sample_sum_nxt;
+   logic [DATA_INPUT_WIDTH+BITS_ADDED_BY_FILTER_SUM-1:0] sample_sum_reg;
+   logic [DATA_INPUT_WIDTH-1:0] 			 sample_rd_data_from_memory;
    logic [NUM_SAMPLES_TO_FILTER-1:0] 			 sample_memory[DATA_INPUT_WIDTH-1:0];
    logic [SAMPLE_BUFFER_DEPTH_WIDTH-1:0] 		 sample_memory_wr_addr;
-   logic [DATA_INPUT_WIDTH-1:0] 			 sample_rd_data_from_memory;
    logic [DATA_INPUT_WIDTH-1:0] 			 decrement_sample_from_ram;
    
    // count upto samples
@@ -59,7 +67,7 @@ module sma (/*AUTOARG*/ ) ;
       end else begin
 	 
 	 // first memory read out
-	 sample_rd_data_from_memory <= sample_memory[sample_memory_wr_addr];
+	 sample_rd_data_from_memory <= sample_memory[sample_counter];
 
 	 // update the memory location and increment write address
 	 if(in_data_valid) begin
@@ -88,7 +96,8 @@ module sma (/*AUTOARG*/ ) ;
 	out_data <= 'b0;
       else
 	if(in_data_valid)
-	  out_data <= sample_sum_nxt[DATA_INPUT_WIDTH+BITS_ADDED_BY_FILTER_SUM-1:-DATA_INPUT_WIDTH];
+	  // use only the higher bits of the sum, drop the lower bits
+	  out_data <= sample_sum_nxt[DATA_INPUT_WIDTH+BITS_ADDED_BY_FILTER_SUM-1 -: DATA_INPUT_WIDTH];
    end
    
    // output valid generation
